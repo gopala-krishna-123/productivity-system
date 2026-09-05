@@ -60,6 +60,16 @@ export default function AnalyticsPage() {
     void load()
   }, [load])
 
+  const applyDatePreset = (days: number) => {
+    const toDate = new Date()
+    const fromDate = new Date(toDate)
+
+    fromDate.setDate(fromDate.getDate() - (days - 1))
+
+    setFrom(localYmd(fromDate))
+    setTo(localYmd(toDate))
+  }
+
   const maxCompletion = useMemo(() => {
     if (!data?.completionsByDay.length) return 0
     return Math.max(...data.completionsByDay.map((d) => d.count), 1)
@@ -78,6 +88,7 @@ export default function AnalyticsPage() {
                 Stats use your browser’s local calendar for defaults; the server uses its own timezone for bucketing.
               </p>
             </div>
+
             <div className="flex flex-wrap items-center gap-3">
               <label className="flex flex-col gap-1 text-sm">
                 <span className="text-slate-400">From</span>
@@ -88,6 +99,7 @@ export default function AnalyticsPage() {
                   className="rounded-lg border border-slate-700/80 bg-slate-950/70 px-2 py-2 text-slate-100 outline-none focus:border-indigo-400/70 [color-scheme:dark]"
                 />
               </label>
+
               <label className="flex flex-col gap-1 text-sm">
                 <span className="text-slate-400">To</span>
                 <input
@@ -97,6 +109,31 @@ export default function AnalyticsPage() {
                   className="rounded-lg border border-slate-700/80 bg-slate-950/70 px-2 py-2 text-slate-100 outline-none focus:border-indigo-400/70 [color-scheme:dark]"
                 />
               </label>
+
+              <button
+                type="button"
+                onClick={() => applyDatePreset(7)}
+                className="mt-5 rounded-lg border border-slate-700/80 bg-slate-950/50 px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 sm:mt-0"
+              >
+                Last 7 days
+              </button>
+
+              <button
+                type="button"
+                onClick={() => applyDatePreset(30)}
+                className="mt-5 rounded-lg border border-slate-700/80 bg-slate-950/50 px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 sm:mt-0"
+              >
+                Last 30 days
+              </button>
+
+              <button
+                type="button"
+                onClick={() => applyDatePreset(90)}
+                className="mt-5 rounded-lg border border-slate-700/80 bg-slate-950/50 px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 sm:mt-0"
+              >
+                Last 90 days
+              </button>
+
               <button
                 type="button"
                 onClick={() => void load()}
@@ -137,12 +174,14 @@ export default function AnalyticsPage() {
                     <div className="text-2xl font-semibold tabular-nums text-slate-100">{data.byStatus.TODO}</div>
                     <div className="mt-1 text-xs text-slate-400">Todo</div>
                   </div>
+
                   <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 px-3 py-4">
                     <div className="text-2xl font-semibold tabular-nums text-slate-100">
                       {data.byStatus.IN_PROGRESS}
                     </div>
                     <div className="mt-1 text-xs text-slate-400">In progress</div>
                   </div>
+
                   <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 px-3 py-4">
                     <div className="text-2xl font-semibold tabular-nums text-slate-100">{data.byStatus.DONE}</div>
                     <div className="mt-1 text-xs text-slate-400">Done</div>
@@ -154,14 +193,17 @@ export default function AnalyticsPage() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
                   Completions by day (range)
                 </h3>
+
                 <p className="mt-1 text-xs text-slate-500">
                   Days with zero height had no task marked done that day (per server clock).
                 </p>
+
                 <div className="mt-4 flex h-40 items-end gap-px overflow-x-auto rounded-xl border border-slate-800/60 bg-slate-950/30 px-2 pb-1 pt-3">
                   {data.completionsByDay.map((d) => {
                     const barMaxPx = 120
                     const hPx =
                       d.count === 0 ? 2 : Math.max(4, Math.round((d.count / maxCompletion) * barMaxPx))
+
                     return (
                       <div
                         key={d.date}
@@ -171,6 +213,7 @@ export default function AnalyticsPage() {
                         <span className="mb-1 text-[10px] tabular-nums text-slate-500 opacity-0 transition group-hover:opacity-100">
                           {d.count > 0 ? d.count : ''}
                         </span>
+
                         <div
                           className="w-full max-w-[20px] rounded-t bg-indigo-500/80 transition group-hover:bg-indigo-400"
                           style={{ height: `${hPx}px` }}
@@ -179,6 +222,7 @@ export default function AnalyticsPage() {
                     )
                   })}
                 </div>
+
                 <div className="mt-2 flex justify-between text-[10px] text-slate-600">
                   <span>{formatShortDate(data.completionsByDay[0]?.date ?? data.from)}</span>
                   <span>
